@@ -43,7 +43,7 @@ async def async_setup_platform(hass, config, add_devices_callback, discovery_inf
         api = WienerlinienAPI(async_create_clientsession(hass), hass.loop, stopid)
         data = await api.get_json()
         try:
-            name = data["data"]["monitors"][0]["locationStop"]["properties"]["title"]
+            name = "{} {}".format(data["data"]["monitors"][0]["locationStop"]["properties"]["title"], stopid)
         except Exception:
             raise PlatformNotReady()
         dev.append(WienerlinienSensor(api, name, firstnext))
@@ -140,7 +140,7 @@ class WienerlinienAPI:
         value = None
         url = BASE_URL.format(self.stopid)
         try:
-            async with async_timeout.timeout(10):
+            async with async_timeout.timeout(60):
                 response = await self.session.get(url)
                 value = await response.json()
         except Exception:
